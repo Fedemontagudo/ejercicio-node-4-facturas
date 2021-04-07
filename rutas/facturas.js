@@ -1,4 +1,5 @@
 const express = require("express");
+const debug = require("debug")("facturas:rutas");
 
 const router = express.Router();
 
@@ -21,8 +22,8 @@ router.get("/gastos", (req, res, next) => {
   res.json(gastos);
 });
 
-router.get("factura/:idFactura", (req, res, next) => {
-  const idFactura = +req.params.id;
+router.get("/factura/:idFactura", (req, res, next) => {
+  const idFactura = +req.params.idFactura;
   const { factura, error } = getFactura(idFactura);
   if (error) {
     next(error);

@@ -1,5 +1,5 @@
 require("dotenv").config();
-const debug = require("debug")("facturas:root");
+const debug = require("debug")("facturas:index");
 const chalk = require("chalk");
 const cors = require("cors");
 const morgan = require("morgan");
