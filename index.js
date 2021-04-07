@@ -1,8 +1,14 @@
 require("dotenv").config();
 const debug = require("debug")("facturas:root");
 const chalk = require("chalk");
+const cors = require("cors");
+const morgan = require("morgan");
 const express = require("express");
 const options = require("./parametrosCLI");
+const rutasFacturas = require("./rutas/facturas");
+const {
+  generaError, serverError, notFoundError, generalError
+} = require("./utils/errores");
 
 const app = express();
 
@@ -12,9 +18,11 @@ const server = app.listen(puerto, () => {
   debug(chalk.yellow.bold(`Servidor escuchando en el puerto http:// ${puerto}`));
 });
 
-server.on("error", err => {
-  debug(chalk.red.bold("Ha ocurrido un error en el servidor"));
-  if (err.code === "EADDRINUSE") {
-    debug(chalk.red.bold(`El puerto ${puerto} esta ocupado`));
-  }
-});
+server.on("error", err => serverError(err, puerto));
+
+app.use(cors());
+app.use(morgan("dev"));
+app.use(express.json());
+app.use("/facturas", rutasFacturas);
+app.use(notFoundError);
+app.use(generalError);
