@@ -24,5 +24,8 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use("/facturas", rutasFacturas);
+app.get("/", (req, res, next) => {
+  res.redirect("/facturas");
+});
 app.use(notFoundError);
 app.use(generalError);
