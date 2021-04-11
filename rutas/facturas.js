@@ -11,91 +11,59 @@ const {
   getGastos,
   getFactura,
   crearFactura,
+  sustituyeFactura,
   verificaVencimiento
 } = require("../controladores/facturas");
 
-const getFacturaSchema = type => {
+const getFacturaSchema = () => {
   const numero = {
-    isLength: {
-      errorMessage: "El número tiene que tener 4 carácteres como mínimo",
-      options: {
-        min: 4
-      }
-    }
+    errorMessage: "Debes poner un número",
+    notEmpty: true
   };
   const fecha = {
-    errorMessage: "Es necesario pasar una fecha",
+    errorMessage: "Falta La fecha de la factura",
     notEmpty: true
+  };
+  const vencimiento = {
+    errorMessage: "Debes poner una fecha de vencimiento en formato Timestamp",
+  };
+  const concepto = {
+    errorMessage: "Falta el concepto de la factura",
   };
   const base = {
     isFloat: {
-      errorMessage: "Base no válida, el mínimo tiene que ser",
+      errorMessage: "La base imponible debe ser mayor a 0",
+      notEmpty: true,
       options: {
-        min: 0,
-      }
+        min: 0
+      },
     }
   };
   const tipoIva = {
-    isInt: {
-      errorMessage: "El tipo de IVA debe ser positivo",
+    isInteger: {
+      errorMessage: "El tipo del iva tiene que ser un entero",
       notEmpty: true
     }
   };
   const tipo = {
-    isLength: {
-      errorMessage: "El tipo ingresado no es válido",
-      notEmpty: true
-    }
+    errorMessage: "Falta el tipo de la factura",
+    notEmpty: true
   };
-  switch (type) {
-    case "completo":
-      numero.exists = {
-        errorMessage: "Falta el numero de la factura",
-      };
-      fecha.exists = true;
-      base.exists = {
-        errorMessage: "Falta la base de la factura"
-      };
-      tipoIva.exists = true;
-      tipo.exists = true;
-      break;
-    case "parcial":
-    default:
-      numero.optional = true;
-      fecha.optional = true;
-      base.optional = true;
-      tipoIva.optional = true;
-      tipo.optional = true;
-      break;
-  }
+  const abonada = {
+    errorMessage: "Se debe de poner si la factura está abonada o no",
+    notEmpty: true
+  };
+  return {
+    numero,
+    fecha,
+    vencimiento,
+    concepto,
+    base,
+    tipoIva,
+    tipo,
+    abonada
+  };
 };
-
-const getFacturaCompleta = getFacturaSchema("completo");
-const getFacturaParcial = getFacturaSchema("parcial");
-
-router.get("/", (req, res, next) => {
-  let listaFacturas = getFacturas();
-  if (req.query.abonadas === "true") {
-    listaFacturas = listaFacturas.filter(factura => factura.datos.abonada === true);
-  } else if (req.query.abonadas === "false") {
-    listaFacturas = listaFacturas.filter(factura => factura.datos.abonada === false);
-  }
-  if (req.query.vencidas === "true") {
-    listaFacturas = listaFacturas.filter(factura => verificaVencimiento(factura.datos.vencimiento) === true);
-  } else if (req.query.vencidas === "true") {
-    listaFacturas = listaFacturas.filter(factura => verificaVencimiento(factura.datos.vencimiento) === false);
-  }
-  if (req.query.ordenPor === "fecha") {
-    if (req.query.orden === "desc") {
-      listaFacturas = listaFacturas.sort((a, b) => DateTime.fromMillis(+b.datos.fecha) - DateTime.fromMillis(+a.datos.fecha));
-    } else { listaFacturas = listaFacturas.sort((a, b) => DateTime.fromMillis(+a.datos.fecha) - DateTime.fromMillis(+b.datos.fecha)); }
-  } else if (req.query.ordenPor === "base") {
-    if (req.query.orden === "desc") {
-      listaFacturas = listaFacturas.sort((a, b) => +b.datos.base - +a.datos.base);
-    } else { listaFacturas = listaFacturas.sort((a, b) => +a.datos.base - +b.datos.base); }
-  }
-  res.json(listaFacturas);
-});
 
 router.get("/", (req, res, next) => {
   const listaFacturas = getFacturas();
@@ -125,6 +93,17 @@ router.get("/factura/:idFactura", (req, res, next) => {
 router.post("/factura", (req, res, next) => {
   const nuevaFactura = req.body;
   const { factura, error } = crearFactura(nuevaFactura);
+  if (error) {
+    next(error);
+  } else {
+    res.json(factura);
+  }
+});
+
+router.put("/factura/:idFactura", (req, res, next) => {
+  const id = +req.params.id;
+  const facturaModificada = req.body;
+  const { error, factura } = sustituyeFactura(id, facturaModificada);
   if (error) {
     next(error);
   } else {

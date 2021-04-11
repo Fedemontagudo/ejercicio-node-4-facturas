@@ -26,7 +26,7 @@ const getFactura = id => {
   if (factura) {
     respuesta.factura = factura;
   } else {
-    const error = generaError("La factura solicitada no existe", 404);
+    const error = generaError("La factura solicitado no existe", 404);
     respuesta.error = error;
   }
   return respuesta;
@@ -49,6 +49,28 @@ const crearFactura = nuevaFactura => {
   return respuesta;
 };
 
+const sustituyeFactura = (id, facturaModificada) => {
+  const factura = facturasJSON.find(factura => factura.id === id);
+  console.log(factura);
+  const respuesta = {
+    factura: null,
+    error: null
+  };
+  if (factura) {
+    facturaModificada.id = factura.id;
+    facturasJSON[facturasJSON.indexOf(factura)] = facturaModificada;
+    respuesta.factura = facturaModificada;
+  } else {
+    const { error, factura } = crearFactura(facturaModificada);
+    if (error) {
+      respuesta.error = error;
+    } else {
+      respuesta.factura = factura;
+    }
+  }
+  return respuesta;
+};
+
 const verificaVencimiento = (vencimiento) => {
   const fechaHoy = DateTime.local();
   const fechaVencimiento = DateTime.fromMillis(+vencimiento);
@@ -65,5 +87,6 @@ module.exports = {
   getGastos,
   getFactura,
   crearFactura,
+  sustituyeFactura,
   verificaVencimiento
 };
