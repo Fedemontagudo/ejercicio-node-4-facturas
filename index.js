@@ -4,11 +4,18 @@ const chalk = require("chalk");
 const cors = require("cors");
 const morgan = require("morgan");
 const express = require("express");
-const options = require("./parametrosCLI");
+let options = require("./parametrosCLI");
 const rutasFacturas = require("./rutas/facturas");
+const rutasProyectos = require("./rutas/proyectos");
+
 const {
   generaError, serverError, notFoundError, generalError
 } = require("./utils/errores");
+
+options = { datos: "mysql" };
+require("./db/dbMongo");
+
+console.log(options);
 
 const app = express();
 
@@ -24,6 +31,7 @@ app.use(cors());
 app.use(morgan("dev"));
 app.use(express.json());
 app.use("/facturas", rutasFacturas);
+app.use("/proyectos", rutasProyectos);
 app.get("/", (req, res, next) => {
   res.redirect("/facturas");
 });

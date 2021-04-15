@@ -1,4 +1,6 @@
+const chalk = require("chalk");
 const { Sequelize } = require("sequelize");
+const debug = require("debug")("facturas:dbMysql");
 
 const sequelize = new Sequelize({
   host: "localhost",
@@ -8,13 +10,6 @@ const sequelize = new Sequelize({
   dialect: "mysql"
 
 });
-
-sequelize
-  .authenticate()
-  .then(() => console.log("Conectado a BD"))
-  .catch(err => {
-    console.log(err);
-    console.log("Ha ocurrido un error al conectar la BD ");
-  });
+debug(chalk.green("Iniciando MySql"));
 
 module.exports = sequelize;

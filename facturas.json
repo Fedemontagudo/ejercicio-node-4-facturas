@@ -6,7 +6,7 @@
       "fecha": "1591166340000",
       "vencimiento": "1601534340000",
       "concepto": "Mantenimiento landing page",
-      "base": 100,
+      "base": 10000000,
       "tipoIva": 21,
       "tipo": "ingreso",
       "abonada": true
